@@ -1,6 +1,7 @@
 package nyy.org.handlerthreadplus.util;
 
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import static nyy.org.handlerthreadplus.util.MHandlerMessageConstant.MSG_WHAT;
@@ -30,7 +31,7 @@ public class MHandlerThreadManager {
      * 发送消息
      * @param event 消息对象
      */
-    public synchronized void send(Object event) {
+    public synchronized void send(Object event, @Nullable Long delayMillis) {
         // 构建消息
         Message msg = this.mThread == null || this.mThread.getMmHandler() == null ? new Message() : this.mThread.getMmHandler().obtainMessage();
         msg.what = MSG_WHAT;
@@ -40,19 +41,28 @@ public class MHandlerThreadManager {
         if (this.mThread == null || this.mThread.getMmHandler() == null || Thread.State.TERMINATED.equals(this.mThread.getState())) {
 
             this.restartThread();
-            this.mThread.getMmHandler().sendMessage(msg);
+            this.sendWithHandler(msg, delayMillis);
 
         } else if (Thread.State.TIMED_WAITING.equals(this.mThread.getState())) {
 
             // 线程睡眠中, 先发送消息, 再中断睡眠
-            this.mThread.getMmHandler().sendMessage(msg);
+            this.sendWithHandler(msg, delayMillis);
             this.mThread.interrupt();
 
         } else {
 
             // 其余状态(运行中), 直接发送消息
-            this.mThread.getMmHandler().sendMessage(msg);
+            this.sendWithHandler(msg, delayMillis);
 
+        }
+    }
+
+
+    private void sendWithHandler(Message msg, @Nullable Long delayMillis) {
+        if (delayMillis == null) {
+            this.mThread.getMmHandler().sendMessage(msg);
+        } else {
+            this.mThread.getMmHandler().sendMessageDelayed(msg, delayMillis);
         }
     }
 
@@ -69,7 +79,7 @@ public class MHandlerThreadManager {
                 ThreadUtil.sleep(100L);
             }
         } catch (InstantiationException | IllegalAccessException e) {
-            Log.e(TAG, "create thread instance error", e);
+            Log.e(TAG, "create thread error", e);
         }
     }
 

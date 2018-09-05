@@ -19,8 +19,7 @@ public class GenericSuperclassUtil {
         Class<?> entityClass = null;
         Type genericSuperclass = clazz.getGenericSuperclass();
         if (genericSuperclass instanceof ParameterizedType) {
-            Type[] actualTypeArguments = ((ParameterizedType) genericSuperclass)
-                    .getActualTypeArguments();
+            Type[] actualTypeArguments = ((ParameterizedType) genericSuperclass).getActualTypeArguments();
             if (actualTypeArguments != null && actualTypeArguments.length > 0) {
                 entityClass = (Class<?>) actualTypeArguments[0];
             }

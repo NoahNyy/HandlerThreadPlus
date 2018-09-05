@@ -26,7 +26,21 @@ public abstract class HandlerThreadPlus {
         if (mHandlerThreadManager == null) {
             throw new IllegalStateException(event.getClass() + " has not register yet. see @HandlerThreadPlus.register");
         } else {
-            mHandlerThreadManager.send(event);
+            mHandlerThreadManager.send(event, null);
+        }
+    }
+
+    /**
+     * 延时发送消息
+     * @param event 消息
+     * @param delayMillis 延时时间
+     */
+    public static void sendMessageDelayed(Object event, long delayMillis){
+        MHandlerThreadManager mHandlerThreadManager = threadManagerMap.get(event.getClass());
+        if (mHandlerThreadManager == null) {
+            throw new IllegalStateException(event.getClass() + " has not register yet. see @HandlerThreadPlus.register");
+        } else {
+            mHandlerThreadManager.send(event, delayMillis);
         }
     }
 
